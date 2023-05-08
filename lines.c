@@ -7,6 +7,7 @@
 #define WIDTH 256
 #define HEIGHT 256
 #define COLOR_DEPTH 8
+#define DEBUG 0
 
 struct Pixel {
 	png_byte r, g, b, a;
@@ -15,6 +16,7 @@ struct Pixel {
 void fillImageWithRandomVeritcalBars(struct Pixel** pixels, int width, int height);
 void fillImageWithRandomHorizontalBars(struct Pixel** pixels, int width, int height);
 void setFileNames(int argc, char* argv[], char* file_t1, char* file_t2, char* file_t3);
+void drawBarGraph(struct Pixel** pixels, int width, int height);
 
 int main(int argc, char *argv[]) {
 	srand(time(NULL)); //seed based on time to make it random each time
@@ -68,8 +70,9 @@ int main(int argc, char *argv[]) {
 
 	/* draw a bunch of vertical lines */
     //fillImageWithRandomVeritcalBars(row_pointers, WIDTH, HEIGHT);
-    fillImageWithRandomHorizontalBars(row_pointers, WIDTH, HEIGHT); 
-	
+    //fillImageWithRandomHorizontalBars(row_pointers, WIDTH, HEIGHT); 
+	drawBarGraph(row_pointers, WIDTH, HEIGHT);
+
     /* write image data to disk */
 	png_write_image(png_ptr, (png_byte **)row_pointers);
 
@@ -97,7 +100,67 @@ int main(int argc, char *argv[]) {
 }
 
 
-
+void drawBarGraph(struct Pixel** pixels, int width, int height){
+    int num = 6;
+    int gap = 2; //2 pixels
+                 
+    //modify this to allow a y-axis column later
+    int col_w = (width - (num-1)*gap)/num;
+    
+    int nums[6] = { 100, 75, 50, 40, 30, 20};
+    int max = DEBUG ? 100 : -1;
+    double scaleFactor;
+    if(!DEBUG){
+        printf("Please enter in %d numbers (integers > 0)", num);
+        for(int i = 0; i < num; ){
+            printf("Enter number %d of %d:\n", (i+1), num);
+            scanf("%d", &nums[i]);
+            if(nums[i] > 0){
+                max = (nums[i] > max) ? nums[i] : max; //keep track of the max
+                i++;
+            }
+            else
+                printf("%d is not a positive integer! Try again:\n", nums[i]);
+        }
+    }
+    scaleFactor = 0.9 * ((double) height) / max;
+	printf("Scale factor is: %f, max is: %d, and height is: %d\n", scaleFactor, max, height); 
+    for(int i = 0; i < num; i++){
+        for(int col = i * (col_w + gap); col < i * (col_w + gap) + col_w && col < width; col++){
+            for(int row  = 0; row < height; row++){    
+                if(height - row <= nums[i] * scaleFactor){// * scaleFactor){
+                    pixels[row][col].r = 0; // red
+                    pixels[row][col].g = 0; // green
+                    pixels[row][col].b = 0; // blue
+                    pixels[row][col].a = 255; // alpha (opacity)
+                }else{
+                    pixels[row][col].r = 255; // red
+                    pixels[row][col].g = 255; // green
+                    pixels[row][col].b = 255; // blue
+                    pixels[row][col].a = 255; // alpha (opacity)
+                }    
+            }
+        }
+        for(int col = i * (col_w + gap) + col_w; col < (i + 1) * (col_w + gap) && col < width; col++){
+            for(int row = 0; row < height; row++){    
+                pixels[row][col].r = 255; // red
+                pixels[row][col].g = 255; // green
+                pixels[row][col].b = 255; // blue
+                pixels[row][col].a = 255; // alpha (opacity)
+            }
+        }
+    }
+    //not sure if necessary, but will fill in the rest of the image too:
+    // if necessary, fill in the rest of the image here.
+    for(int col = num * (col_w + gap); col < width; col++){
+        for(int row = 0; row < height; row++){
+            pixels[row][col].r = 255; // red
+            pixels[row][col].g = 255; // green
+            pixels[row][col].b = 255; // blue
+            pixels[row][col].a = 255; // alpha (opacity)
+        }
+    }
+}
 
 
 void fillImageWithRandomHorizontalBars(struct Pixel** pixels, int width, int height){
