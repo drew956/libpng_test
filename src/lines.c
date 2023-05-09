@@ -7,7 +7,7 @@
 #define WIDTH 256
 #define HEIGHT 256
 #define COLOR_DEPTH 8
-#define DEBUG 0
+#define DEBUG 1
 
 struct Pixel {
 	png_byte r, g, b, a;
@@ -20,9 +20,9 @@ void drawBarGraph(struct Pixel** pixels, int width, int height);
 
 int main(int argc, char *argv[]) {
 	srand(time(NULL)); //seed based on time to make it random each time
-    char* file_t1 = "vertical.png";
-    char* file_t2 = "horizontal.png";
-    char* file_t3 = "random.png";
+    char* file_t1 = "/Users/loganhaser/Documents/Programming/general/C/libpng/png/vertical.png";
+    char* file_t2 = "/Users/loganhaser/Documents/Programming/general/C/libpng/png/horizontal.png";
+    char* file_t3 = "/Users/loganhaser/Documents/Programming/general/C/libpng/png/random.png";
     
 
 	/* open PNG file for writing */
@@ -124,7 +124,7 @@ void drawBarGraph(struct Pixel** pixels, int width, int height){
         }
     }
     scaleFactor = 0.9 * ((double) height) / max;
-	printf("Scale factor is: %f, max is: %d, and height is: %d\n", scaleFactor, max, height); 
+    printf("Scale factor is: %f, max is: %d, and height is: %d\n", scaleFactor, max, height); 
     for(int i = 0; i < num; i++){
         for(int col = i * (col_w + gap); col < i * (col_w + gap) + col_w && col < width; col++){
             for(int row  = 0; row < height; row++){    
